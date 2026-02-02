@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Lens</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📷</text></svg>">
+    
+    <!-- Import Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'sans-serif'],
+                        mono: ['Space Grotesk', 'monospace'],
+                    },
+                    colors: {
+                        glass: 'rgba(255, 255, 255, 0.05)',
+                        glassBorder: 'rgba(255, 255, 255, 0.1)',
+                        neonBlue: '#3b82f6',
+                        neonPurple: '#8b5cf6',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Utilities */
+        body {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-size: cover;
+            background-attachment: fixed;
+        }
+        
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        canvas {
+            border-radius: 1rem;
+            width: 100% !important;
+            height: auto !important;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-slate-200">
+
+    <div class="w-full max-w-md mx-auto">
+        <!-- Main Card -->
+        <div class="glass-panel rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+            
+            <!-- Decorative Elements -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+            
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center p-3 mb-4 rounded-full bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <h1 class="font-mono text-3xl font-bold tracking-tight text-white mb-1">SMART LENS</h1>
+                <p class="text-slate-400 text-sm font-light">ระบบวิเคราะห์ภาพผ่านกล้อง</p>
+            </div>
+
+            <!-- Content Area -->
+            <div class="space-y-6">
+                
+                <!-- Start Button -->
+                <div id="btn-container" class="text-center">
+                    <button type="button" onclick="init()" id="startBtn" 
+                        class="group relative inline-flex items-center justify-center px-8 py-3 font-semibold text-white transition-all duration-200 bg-gradient-to-r from-blue-600 to-violet-600 rounded-full hover:from-blue-500 hover:to-violet-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 w-full sm:w-auto">
+                        <span class="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-gray-700"></span>
+                        <span class="relative flex items-center gap-2">
+                            เริ่มใช้งานกล้อง
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Webcam Display -->
+                <div id="webcam-wrapper" class="hidden relative rounded-2xl overflow-hidden bg-black border-2 border-white/10 aspect-square mx-auto max-w-[300px]">
+                    <div id="webcam-container" class="w-full h-full flex items-center justify-center"></div>
+                    
+                    <!-- Overlay Grid (Optional decoration) -->
+                    <div class="absolute inset-0 pointer-events-none opacity-20">
+                        <div class="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-white"></div>
+                        <div class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-white"></div>
+                        <div class="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-white"></div>
+                        <div class="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-white"></div>
+                    </div>
+                </div>
+                
+                <!-- Results Section -->
+                <div id="label-container" class="space-y-3 pt-2">
+                    <!-- Dynamic Bars will be inserted here -->
+                </div>
+
+            </div>            
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    
+    <script>
+        // --- Configuration ---
+        // ตรวจสอบชื่อโฟลเดอร์โมเดลของคุณให้ถูกต้อง
+        const URL = "./my-model/"; 
+        
+        let model, webcam, labelContainer, maxPredictions;
+        let isLooping = false;
+
+        async function init() {
+            const startBtn = document.getElementById("startBtn");
+            const originalBtnText = startBtn.innerHTML;
+            
+            // 1. Loading State UI Update
+            // เปลี่ยนข้อความและแสดง Spinner
+            startBtn.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                กำลังโหลด...
+            `;
+            startBtn.disabled = true;
+            startBtn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            // 2. Force Repaint/Yield
+            // สำคัญ! รอ 100ms ให้ Browser วาดหน้าจอ Spinner ก่อนเริ่มงานหนัก
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+
+            try {
+                // โหลดโมเดล (งานหนัก)
+                model = await tmImage.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
+
+                // Setup Webcam (งานหนัก + รอสิทธิ์)
+                const flip = true; 
+                webcam = new tmImage.Webcam(300, 300, flip); 
+                await webcam.setup(); 
+                await webcam.play();
+                
+                // Hide Button / Show Webcam
+                document.getElementById("btn-container").classList.add("hidden");
+                document.getElementById("webcam-wrapper").classList.remove("hidden");
+
+                // Append Webcam Canvas
+                const webcamContainer = document.getElementById("webcam-container");
+                webcamContainer.appendChild(webcam.canvas);
+                
+                // Create Result Bars
+                labelContainer = document.getElementById("label-container");
+                labelContainer.innerHTML = ""; 
+                
+                for (let i = 0; i < maxPredictions; i++) {
+                    // Create structure using Tailwind classes
+                    // Container
+                    let row = document.createElement("div");
+                    row.className = "relative group";
+                    
+                    // Background & Border for the row
+                    let bg = document.createElement("div");
+                    bg.className = "flex items-center justify-between bg-white/5 border border-white/5 rounded-xl p-3 backdrop-blur-sm transition-all duration-300 hover:bg-white/10";
+                    
+                    // Label Name
+                    let name = document.createElement("span");
+                    name.className = "text-sm font-medium text-slate-300 w-24 truncate";
+                    name.id = `label-name-${i}`;
+                    name.innerText = "-";
+                    
+                    // Progress Bar Container
+                    let progressWrapper = document.createElement("div");
+                    progressWrapper.className = "flex-1 h-2 mx-3 bg-slate-700/50 rounded-full overflow-hidden";
+                    
+                    // Progress Bar Fill
+                    let progressFill = document.createElement("div");
+                    progressFill.className = "h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all duration-300 w-0";
+                    progressFill.id = `label-bar-${i}`;
+                    
+                    // Percentage Text
+                    let percent = document.createElement("span");
+                    percent.className = "font-mono text-xs text-slate-400 w-12 text-right";
+                    percent.id = `label-percent-${i}`;
+                    percent.innerText = "0%";
+
+                    // Assemble
+                    progressWrapper.appendChild(progressFill);
+                    bg.appendChild(name);
+                    bg.appendChild(progressWrapper);
+                    bg.appendChild(percent);
+                    row.appendChild(bg);
+                    labelContainer.appendChild(row);
+                }
+
+                isLooping = true;
+                window.requestAnimationFrame(loop);
+
+            } catch (error) {
+                console.error(error);
+                startBtn.innerHTML = "ไม่พบโมเดล";
+                startBtn.classList.remove('from-blue-600', 'to-violet-600');
+                startBtn.classList.add('from-red-600', 'to-red-700');
+                
+                // Error Alert UI
+                const errorMsg = document.createElement("div");
+                errorMsg.className = "mt-4 p-4 text-sm text-red-200 bg-red-900/30 border border-red-500/30 rounded-xl text-center";
+                errorMsg.innerHTML = "ไม่พบไฟล์โมเดล!<br>กรุณาตรวจสอบโฟลเดอร์ <code>tm-my-image-model</code>";
+                document.getElementById("btn-container").appendChild(errorMsg);
+            }
+        }
+
+        async function loop() {
+            if(isLooping){
+                webcam.update(); 
+                await predict();
+                window.requestAnimationFrame(loop);
+            }
+        }
+
+        async function predict() {
+            const prediction = await model.predict(webcam.canvas);
+
+            for (let i = 0; i < maxPredictions; i++) {
+                const className = prediction[i].className;
+                const probability = prediction[i].probability;
+                const percentage = (probability * 100).toFixed(0) + "%";
+                
+                // Elements
+                const nameEl = document.getElementById(`label-name-${i}`);
+                const percentEl = document.getElementById(`label-percent-${i}`);
+                const barEl = document.getElementById(`label-bar-${i}`);
+                
+                // Update Text
+                nameEl.innerText = className;
+                percentEl.innerText = percentage;
+                barEl.style.width = percentage;
+
+                // Color Logic
+                if (probability > 0.8) {
+                    // High Confidence: Green/Emerald Gradient
+                    barEl.className = "h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(52,211,153,0.5)]";
+                    percentEl.classList.add("text-emerald-400", "font-bold");
+                    percentEl.classList.remove("text-slate-400");
+                    nameEl.classList.add("text-white");
+                    nameEl.classList.remove("text-slate-300");
+                } else {
+                    // Normal: Blue/Violet Gradient
+                    barEl.className = "h-full bg-gradient-to-r from-blue-500 to-violet-500 rounded-full transition-all duration-300";
+                    percentEl.classList.remove("text-emerald-400", "font-bold");
+                    percentEl.classList.add("text-slate-400");
+                    nameEl.classList.remove("text-white");
+                    nameEl.classList.add("text-slate-300");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
